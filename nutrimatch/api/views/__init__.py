@@ -1,0 +1,4 @@
+from .employee_management import EmployeeManagementView
+from .login import LoginView
+from .register import RegisterView
+from .restaurant_management import RestaurantsOperationView
