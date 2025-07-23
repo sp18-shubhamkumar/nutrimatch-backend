@@ -20,7 +20,7 @@ class FoodItemView(APIView):
                 return None
         
     @swagger_auto_schema(request_body=FoodItemSerializer)
-    def post(self, rid, request):
+    def post(self, request, rid):
         restaurant = self.get_restaurant(rid, request.user)
         if not restaurant:
              return Response({'error':'Unauthorized or restaurant not found'}, status=403)
@@ -40,12 +40,14 @@ class FoodItemView(APIView):
         if fid:
             try:
                 food = FoodItem.objects.get(id=fid, restaurant=restaurant)
-                return Response(FoodItemSerializer(food).data, context={'restaurant':restaurant})
+                serializer = FoodItemSerializer(food, context={'restaurant':restaurant})
+                return Response(serializer.data)
             except FoodItem.DoesNotExist:
                 return Response({'error':'Food Item not found'}, status=404)
              
         foods = FoodItem.objects.filter(restaurant=restaurant)
-        return Response(FoodItemSerializer(foods, many=True, context={'restaurant':restaurant}).data)
+        serializer = FoodItemSerializer(foods, many=True, context={'restaurant':restaurant})
+        return Response(serializer.data)
     
 
     @swagger_auto_schema(request_body=FoodItemSerializer)
