@@ -77,6 +77,6 @@ class FoodItemView(APIView):
         try:
             food = FoodItem.objects.get(id=fid, restaurant=restaurant)
             food.delete()
-            return Response({'message': 'Food Item is Deleted'}, status=204)
+            return Response({'message': 'Food Item is Deleted'}, status=200)
         except FoodItem.DoesNotExist:
             return Response({'error': 'Food Item not Found'}, status=404)

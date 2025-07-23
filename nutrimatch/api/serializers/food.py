@@ -29,7 +29,7 @@ class FoodItemSerializer(serializers.ModelSerializer):
         else:
             filter_kwargs['variant__isnull'] = True
 
-        if existing_items.objects.filter(**filter_kwargs).exists():
+        if existing_items.filter(**filter_kwargs).exists():
             raise serializers.ValidationError(
                 "This Food item already exists in the restaurant with the same name and variant."
             )
