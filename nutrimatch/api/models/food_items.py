@@ -7,10 +7,10 @@ class FoodItem(models.Model):
         Restaurant, on_delete=models.CASCADE, related_name='food_items')
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=15,decimal_places=2)
+    price = models.DecimalField(max_digits=15, decimal_places=2)
     available = models.BooleanField(default=True)
 
-    class Meta :
+    class Meta:
         unique_together = ('restaurant', 'name', 'description')
 
     def __str__(self):

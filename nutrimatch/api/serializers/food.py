@@ -11,7 +11,8 @@ class FoodItemSerializer(serializers.ModelSerializer):
     def validate(self, data):
         restaurant = self.context.get('restaurant') or self.instance.restaurant
         name = data.get('name', self.instance.name if self.instance else None)
-        desc = data.get('description', self.instance.description if self.instance else None)
+        desc = data.get(
+            'description', self.instance.description if self.instance else None)
 
         if FoodItem.objects.filter(
             restaurant=restaurant,
