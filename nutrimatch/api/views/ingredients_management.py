@@ -21,7 +21,7 @@ class IngredientsView(APIView):
         if iid:
             ingredient = self.get_object(iid)
             if not ingredient:
-                return Response({'error':'Ingredient not found'}, status==404)
+                return Response({'error':'Ingredient not found'}, status=404)
             serializer = IngredientSerializer(ingredient)
             return Response(serializer.data)
         ingredients = Ingredients.objects.all()

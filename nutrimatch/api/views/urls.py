@@ -1,5 +1,5 @@
 from django.urls import path
-from . import RegisterView, LoginView, RestaurantsOperationView, EmployeeManagementView, FoodItemView, IngredientsView
+from . import RegisterView, LoginView, RestaurantsOperationView, EmployeeManagementView, FoodItemView, IngredientsView, IngredientRequestView, DiseaseRequestView, IngredientRequestApprovalView
 
 
 urlpatterns = [
@@ -26,4 +26,8 @@ urlpatterns = [
     path('ingredients/<int:iid>/',
          IngredientsView.as_view(), name='ingredient-detail'),
 
+     path('requests/disease/', DiseaseRequestView.as_view(), name='disease-request'),
+     path('requests/ingredients/', IngredientRequestView.as_view(), name='ingredient-request'),
+
+     path('requests/ingredients/<int:pk>/', IngredientRequestApprovalView.as_view(), name='ingredient-request-approval'),
 ]

@@ -11,8 +11,8 @@ class FoodItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FoodItem
-        fields = '__all__'
-        # exclude = ['ingredients']
+        # fields = '__all__'
+        exclude = ['ingredients']
         read_only_fields = ['restaurant']
 
     def validate(self, data):
