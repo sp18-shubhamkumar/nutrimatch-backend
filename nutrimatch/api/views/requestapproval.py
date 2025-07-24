@@ -28,7 +28,7 @@ class IngredientRequestApprovalView(APIView):
         action_type = serializer.validated_data['action']
         
         if action_type not in ['approve', 'reject']:
-            return Response({'error':'Action should between approve and reject'}, status=400)
+            return Response({'error':"Action must be 'approve' and 'reject'"}, status=400)
         
         if action_type == "approve":
             ingredient_name = req.ingredient_name.strip().lower()
@@ -36,7 +36,7 @@ class IngredientRequestApprovalView(APIView):
                 Ingredients.objects.create(name=ingredient_name)
                 req.status = "approved"
             else:
-                req.status = "rejected"
+                req.status = "AlreadyExists"
         else:
             req.status = "rejected"
         

@@ -76,7 +76,7 @@ class FoodItemSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['ingredients_names'] = [ing.name for ing in instance.ingredients.all()]
+        data['ingredient_names'] = [ing.name for ing in instance.ingredients.all()]
         rejected = self.context.get('rejected_ingredients')
         if rejected:
             data['warning'] = f"The following ingredients were not found and were ignored: {', '.join(rejected)}"
