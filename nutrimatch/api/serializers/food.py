@@ -1,12 +1,18 @@
 from rest_framework import serializers
-from ..models import FoodItem
+from ..models import FoodItem, Ingredients
 
 
 class FoodItemSerializer(serializers.ModelSerializer):
+    ingredient_names = serializers.ListField(
+        child=serializers.CharField(),
+        write_only=True,
+        required=False
+    )
 
     class Meta:
         model = FoodItem
         fields = '__all__'
+        # exclude = ['ingredients']
         read_only_fields = ['restaurant']
 
     def validate(self, data):
@@ -34,3 +40,45 @@ class FoodItemSerializer(serializers.ModelSerializer):
                 "This Food item already exists in the restaurant with the same name and variant."
             )
         return data
+    
+    def _resolve_ingredients(self, names):
+        valid_ingredients = []
+        rejected = []
+        for name in names:
+            normalized = name.strip().lower()
+            try:
+                ingredient = Ingredients.objects.get(name__iexact=normalized)
+                valid_ingredients.append(ingredient)
+            except Ingredients.DoesNotExist:
+                rejected.append(name)
+        return valid_ingredients, rejected
+        
+    
+    def create(self, validated_data):
+        names = validated_data.pop('ingredient_names',[])
+        ingredients, rejected = self._resolve_ingredients(names)
+        food = FoodItem.objects.create(**validated_data)
+        food.ingredients.set(ingredients)
+        if rejected:
+            self.context['rejected_ingredients'] = rejected
+        return food
+
+    def update(self, instance, validated_data):
+        names = validated_data.pop('ingredient_names', None)
+        instance = super().update(instance, validated_data)
+        if names is not None:
+            ingredients, rejected = self._resolve_ingredients(names)
+            instance.ingredients.set(ingredients)
+            if rejected:
+                self.context['rejected_ingredients'] = rejected
+        
+        return instance
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['ingredients_names'] = [ing.name for ing in instance.ingredients.all()]
+        rejected = self.context.get('rejected_ingredients')
+        if rejected:
+            data['warning'] = f"The following ingredients were not found and were ignored: {', '.join(rejected)}"
+
+        return data 

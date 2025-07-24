@@ -3,3 +3,5 @@ from .restaurant import RestauratCreateSerializer
 from .user_login import UserLoginSerializer
 from .user_register import UserRegistrationSerializer
 from .food import FoodItemSerializer
+from .ingredients import IngredientSerializer
+from .new_disease_ingredient_request import NewRequestSerializer
