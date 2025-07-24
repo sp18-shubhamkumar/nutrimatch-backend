@@ -5,9 +5,7 @@ from django.db import models
 
 class User(AbstractBaseUser, PermissionsMixin):
     USER_TYPE_CHOICES = (
-
         ('restaurant_admin', 'Restaurant Admin'),
-        
         ('customer', 'Customer'),
     )
 
