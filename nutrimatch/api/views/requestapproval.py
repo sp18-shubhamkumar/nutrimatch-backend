@@ -36,7 +36,7 @@ class IngredientRequestApprovalView(APIView):
                 Ingredients.objects.create(name=ingredient_name)
                 req.status = "approved"
             else:
-                req.status = "AlreadyExists"
+                req.status = "Already Exists"
         else:
             req.status = "rejected"
         

@@ -3,17 +3,23 @@ from ..models import FoodItem, Ingredients
 
 
 class FoodItemSerializer(serializers.ModelSerializer):
-    ingredient_names = serializers.ListField(
-        child=serializers.CharField(),
-        write_only=True,
-        required=False
-    )
+    ingredients_ids = serializers.CharField(required=False, write_only=True)
+    image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = FoodItem
-        # fields = '__all__'
-        exclude = ['ingredients']
-        read_only_fields = ['restaurant']
+        fields = [
+            'id', 'image', 'name', 'variant', 'category',
+            'description', 'price', 'available', 'ingredients_ids'
+        ]
+        read_only_fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+        if request and request.method in ['PUT', 'PATCH']:
+            self.fields['name'].required = False
+            self.fields['price'].required = False
 
     def validate(self, data):
         restaurant = self.context.get('restaurant') or (
@@ -40,45 +46,43 @@ class FoodItemSerializer(serializers.ModelSerializer):
                 "This Food item already exists in the restaurant with the same name and variant."
             )
         return data
-    
-    def _resolve_ingredients(self, names):
-        valid_ingredients = []
-        rejected = []
-        for name in names:
-            normalized = name.strip().lower()
-            try:
-                ingredient = Ingredients.objects.get(name__iexact=normalized)
-                valid_ingredients.append(ingredient)
-            except Ingredients.DoesNotExist:
-                rejected.append(name)
-        return valid_ingredients, rejected
-        
-    
+
+    def _parse_ingredient_ids(self, raw):
+        if not raw:
+            return []
+        if isinstance(raw, list):
+            # For MultiPart: ['4,8']
+            raw = raw[0]
+        try:
+            return [int(i.strip()) for i in raw.split(',') if i.strip().isdigit()]
+        except Exception:
+            raise serializers.ValidationError({
+                'ingredients_ids': 'All IDs must be integers separated by commas.'
+            })
+
     def create(self, validated_data):
-        names = validated_data.pop('ingredient_names',[])
-        ingredients, rejected = self._resolve_ingredients(names)
+        ingredient_ids_raw = validated_data.pop('ingredients_ids', '')
+        ingredient_ids = self._parse_ingredient_ids(ingredient_ids_raw)
+
         food = FoodItem.objects.create(**validated_data)
-        food.ingredients.set(ingredients)
-        if rejected:
-            self.context['rejected_ingredients'] = rejected
+        food.ingredients.set(Ingredients.objects.filter(id__in=ingredient_ids))
         return food
 
     def update(self, instance, validated_data):
-        names = validated_data.pop('ingredient_names', None)
+        ingredient_ids_raw = validated_data.pop('ingredients_ids', None)
         instance = super().update(instance, validated_data)
-        if names is not None:
-            ingredients, rejected = self._resolve_ingredients(names)
-            instance.ingredients.set(ingredients)
-            if rejected:
-                self.context['rejected_ingredients'] = rejected
-        
+
+        if ingredient_ids_raw is not None:
+            ingredient_ids = self._parse_ingredient_ids(ingredient_ids_raw)
+            instance.ingredients.set(Ingredients.objects.filter(id__in=ingredient_ids))
         return instance
-    
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['ingredient_names'] = [ing.name for ing in instance.ingredients.all()]
-        rejected = self.context.get('rejected_ingredients')
-        if rejected:
-            data['warning'] = f"The following ingredients were not found and were ignored: {', '.join(rejected)}"
+        data['ingredients_ids'] = list(instance.ingredients.values_list('id', flat=True))
 
-        return data 
+        request = self.context.get('request')
+        if instance.image and request:
+            data['image'] = request.build_absolute_uri(instance.image.url)
+
+        return data

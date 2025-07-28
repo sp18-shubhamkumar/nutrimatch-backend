@@ -12,7 +12,7 @@ class IngredientRequest(models.Model):
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-        ('alreadyexists', 'AlreadyExists'),
+        ('already_exists', 'Already Exists'),
     ), default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -30,7 +30,7 @@ class DiseaseRequest(models.Model):
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-        ('alreadyexists', 'AlreadyExists'),
+        ('already_exists', 'Already Exists'),
     ), default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 

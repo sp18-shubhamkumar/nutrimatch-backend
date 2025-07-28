@@ -13,7 +13,7 @@ class FoodItem(models.Model):
     price = models.DecimalField(max_digits=15, decimal_places=2)
     available = models.BooleanField(default=True)
     ingredients = models.ManyToManyField(Ingredients, related_name='food_items')
-    
+    image = models.ImageField(upload_to='food_items/', blank=True, null=True)
 
     class Meta:
         unique_together = ('restaurant', 'name', 'variant')

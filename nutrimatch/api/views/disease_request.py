@@ -15,12 +15,15 @@ class DiseaseRequestView(APIView):
             requests = DiseaseRequest.objects.all()
         elif request.user.user_type == 'customer':
             requests = DiseaseRequest.objects.filter(user=request.user)
+        else:
+            return Response({"error": "Only customers have authorization for this."}, status=400)
+        
 
 
         if requests:
             serializer = DiseaseRequestSerializer(requests, many=True)
             return Response(serializer.data)
-        return Response({"error": "Only customers have authorization for this."}, status=400)
+        return Response({"message": "No disease requests found."}, status=404)
     
     @swagger_auto_schema(request_body=DiseaseRequestSerializer)
     def post(self, request):

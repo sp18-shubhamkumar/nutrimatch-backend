@@ -5,11 +5,12 @@ from ..serializers import FoodItemSerializer
 from ..models import Restaurant, Employee, FoodItem
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class FoodItemView(APIView):
-    permission_classes = [IsAuthenticated, IsRestaurantAdminOrEmployee]\
-
+    permission_classes = [IsAuthenticated, IsRestaurantAdminOrEmployee]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_restaurant(self, rid, user):
         try:
@@ -26,11 +27,17 @@ class FoodItemView(APIView):
             return Response({'error': 'Unauthorized or restaurant not found'}, status=403)
 
         serializer = FoodItemSerializer(data=request.data, context={
-                                        'restaurant': restaurant})
+                                        'restaurant': restaurant, 'request': request})
 
         if serializer.is_valid():
-            serializer.save(restaurant=restaurant)
-            return Response({'message': 'Food Item added Successfully', 'data': serializer.data}, status=201)
+            # print(serializer.validated_data)
+            food = serializer.save(restaurant=restaurant)
+            # rejected = serializer.context.get("rejected_ingredients",[])
+            out = FoodItemSerializer(food, context={'restaurant': restaurant, 'request': request})
+            response_data = {'message': 'Food Item added Successfully', 'data': out.data}
+            # if rejected:
+            #     response_data['warning'] = f"The following ingredients were not found and were ingored: {', '.join(rejected)}"
+            return Response(response_data, status=201)
         return Response(serializer.errors, status=400)
 
     def get(self, request, rid, fid=None):
@@ -42,18 +49,20 @@ class FoodItemView(APIView):
             try:
                 food = FoodItem.objects.get(id=fid, restaurant=restaurant)
                 serializer = FoodItemSerializer(
-                    food, context={'restaurant': restaurant})
+                    food, context={'restaurant': restaurant, 'request': request})
                 return Response(serializer.data)
             except FoodItem.DoesNotExist:
                 return Response({'error': 'Food Item not found'}, status=404)
 
         foods = FoodItem.objects.filter(restaurant=restaurant)
         serializer = FoodItemSerializer(foods, many=True, context={
-                                        'restaurant': restaurant})
+                                        'request': request})
         return Response(serializer.data)
 
     @swagger_auto_schema(request_body=FoodItemSerializer)
     def patch(self, request, rid, fid):
+        # 
+        print(request.data)
         restaurant = self.get_restaurant(rid, request.user)
         if not restaurant:
             return Response({'error': 'Unauthorized or restaurant not found'}, status=403)
@@ -63,10 +72,20 @@ class FoodItemView(APIView):
         except FoodItem.DoesNotExist:
             return Response({'error': 'Food Item not found'}, status=404)
         serializer = FoodItemSerializer(
-            food, data=request.data, partial=True, context={'restaurant': restaurant})
+            food, data=request.data, partial=True, context={'restaurant': restaurant, 'request': request})
+        
         if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Food item updated', 'data': serializer.data})
+            
+            food = serializer.save()
+            # print(food.validated_data)
+            
+            # rejected = serializer.context.get("rejected_ingredients",[])
+            out = FoodItemSerializer(food, context={'request': request})
+           
+            response_data = {'message': 'Food Item Updated Successfully', 'data': out.data}
+            # if rejected:
+            #     response_data['warning'] = f"The following ingredients were not found and were ingored: {', '.join(rejected)}"
+            return Response(response_data, status=201)
         return Response(serializer.errors, status=400)
 
     def delete(self, request, rid, fid):
