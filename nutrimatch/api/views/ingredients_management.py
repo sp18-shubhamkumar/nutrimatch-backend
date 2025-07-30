@@ -6,7 +6,7 @@ from ..serializers import IngredientSerializer
 from ..permissions import IsAdminOrReadOnly
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
-
+from drf_yasg import openapi
 
 class IngredientsView(APIView):
     permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
@@ -17,6 +17,13 @@ class IngredientsView(APIView):
         except Ingredients.DoesNotExist:
             return None
 
+    @swagger_auto_schema(manual_parameters=[openapi.Parameter(
+        'search', openapi.IN_QUERY, 
+        description="Search ingredient by name(case-insensitive)", 
+        type=openapi.TYPE_STRING)
+        ]
+        )
+    
     def get(self, request, iid=None):
         if iid:
             ingredient = self.get_object(iid)
@@ -24,7 +31,12 @@ class IngredientsView(APIView):
                 return Response({'error':'Ingredient not found'}, status=404)
             serializer = IngredientSerializer(ingredient)
             return Response(serializer.data)
+        
+        search = request.query_params.get('search')
+
         ingredients = Ingredients.objects.all()
+        if search:
+            ingredients = ingredients.filter(name__icontains=search)
         serializer = IngredientSerializer(ingredients, many=True)
         return Response(serializer.data)
     

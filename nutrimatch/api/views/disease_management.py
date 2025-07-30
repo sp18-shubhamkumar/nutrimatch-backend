@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from ..permissions import IsAdminOrCustomerReadOnly
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from ..serializers import DiseaseSerializer
 from ..models import Diseases
 
@@ -15,7 +16,14 @@ class DiseaseManagementView(APIView):
             return Diseases.objects.get(pk=pk)
         except Diseases.DoesNotExist:
             return None
-
+    
+    @swagger_auto_schema(manual_parameters=[
+        openapi.Parameter('search', openapi.IN_QUERY,
+                          description="Search disease by name(case-insensitive)",
+                          type=openapi.TYPE_STRING
+                          )
+            ]
+    )
     def get(self, request, pk=None):
         if pk:
             disease = self.get_object(pk)
@@ -23,7 +31,11 @@ class DiseaseManagementView(APIView):
                 serializer = DiseaseSerializer(disease)
                 return Response(serializer.data, status=200)
             return Response({'error': 'Disease not found'}, status=400)
+        
+        search = request.query_params.get('search')
         diseases = Diseases.objects.all()
+        if search:
+            diseases = diseases.filter(name__icontains=search)
         serializer = DiseaseSerializer(diseases, many=True)
         return Response(serializer.data, status=200)
 
