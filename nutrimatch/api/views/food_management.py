@@ -30,13 +30,11 @@ class FoodItemView(APIView):
                                         'restaurant': restaurant, 'request': request})
 
         if serializer.is_valid():
-            # print(serializer.validated_data)
             food = serializer.save(restaurant=restaurant)
-            # rejected = serializer.context.get("rejected_ingredients",[])
-            out = FoodItemSerializer(food, context={'restaurant': restaurant, 'request': request})
-            response_data = {'message': 'Food Item added Successfully', 'data': out.data}
-            # if rejected:
-            #     response_data['warning'] = f"The following ingredients were not found and were ingored: {', '.join(rejected)}"
+            out = FoodItemSerializer(
+                food, context={'restaurant': restaurant, 'request': request})
+            response_data = {
+                'message': 'Food Item added Successfully', 'data': out.data}
             return Response(response_data, status=201)
         return Response(serializer.errors, status=400)
 
@@ -61,8 +59,6 @@ class FoodItemView(APIView):
 
     @swagger_auto_schema(request_body=FoodItemSerializer)
     def patch(self, request, rid, fid):
-        # 
-        print(request.data)
         restaurant = self.get_restaurant(rid, request.user)
         if not restaurant:
             return Response({'error': 'Unauthorized or restaurant not found'}, status=403)
@@ -73,18 +69,12 @@ class FoodItemView(APIView):
             return Response({'error': 'Food Item not found'}, status=404)
         serializer = FoodItemSerializer(
             food, data=request.data, partial=True, context={'restaurant': restaurant, 'request': request})
-        
+
         if serializer.is_valid():
-            
             food = serializer.save()
-            # print(food.validated_data)
-            
-            # rejected = serializer.context.get("rejected_ingredients",[])
             out = FoodItemSerializer(food, context={'request': request})
-           
-            response_data = {'message': 'Food Item Updated Successfully', 'data': out.data}
-            # if rejected:
-            #     response_data['warning'] = f"The following ingredients were not found and were ingored: {', '.join(rejected)}"
+            response_data = {
+                'message': 'Food Item Updated Successfully', 'data': out.data}
             return Response(response_data, status=201)
         return Response(serializer.errors, status=400)
 

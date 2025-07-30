@@ -1,5 +1,5 @@
 from django.urls import path
-from . import RegisterView, LoginView, RestaurantsOperationView, EmployeeManagementView, FoodItemView, IngredientsView, IngredientRequestView, DiseaseRequestView, IngredientRequestApprovalView
+from . import RegisterView, LoginView, RestaurantsOperationView, EmployeeManagementView, FoodItemView, IngredientsView, IngredientRequestView, DiseaseRequestView, IngredientRequestApprovalView, DiseaseManagementView, CustomerProfileView, FoodSuggestionsView, IngredientBulkUploadView, DiseaseBulkUploadView
 
 
 urlpatterns = [
@@ -25,9 +25,27 @@ urlpatterns = [
          IngredientsView.as_view(), name='ingredients'),
     path('ingredients/<int:iid>/',
          IngredientsView.as_view(), name='ingredient-detail'),
+    path('ingredients/upload/', IngredientBulkUploadView.as_view(),
+         name='ingredient-bulk-upload'),
 
-     path('requests/disease/', DiseaseRequestView.as_view(), name='disease-request'),
-     path('requests/ingredients/', IngredientRequestView.as_view(), name='ingredient-request'),
+    path('requests/disease/', DiseaseRequestView.as_view(), name='disease-request'),
+    path('requests/ingredients/', IngredientRequestView.as_view(),
+         name='ingredient-request'),
 
-     path('requests/ingredients/<int:pk>/', IngredientRequestApprovalView.as_view(), name='ingredient-request-approval'),
+    path('requests/ingredients/<int:pk>/',
+         IngredientRequestApprovalView.as_view(), name='ingredient-request-approval'),
+
+    path('diseases/',
+         DiseaseManagementView.as_view(), name='diseases'),
+    path('diseases/<int:pk>/',
+         DiseaseManagementView.as_view(), name='disease-details'),
+    path('diseases/upload/', DiseaseBulkUploadView.as_view(),
+         name='disease-bulk-upload'),
+
+    path('customer/profile/', CustomerProfileView.as_view(),
+         name='csutomer-profile'),
+    path('customer/food-suggestions/', FoodSuggestionsView.as_view(),
+         name='customer-suggested-foods'),
+
+
 ]

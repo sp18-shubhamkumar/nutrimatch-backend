@@ -10,7 +10,7 @@ class FoodItemSerializer(serializers.ModelSerializer):
         model = FoodItem
         fields = [
             'id', 'image', 'name', 'variant', 'category',
-            'description', 'price', 'available', 'ingredients_ids'
+            'description', 'price', 'available', 'ingredients_ids', 'restaurant'
         ]
         read_only_fields = ['id']
 
@@ -74,12 +74,14 @@ class FoodItemSerializer(serializers.ModelSerializer):
 
         if ingredient_ids_raw is not None:
             ingredient_ids = self._parse_ingredient_ids(ingredient_ids_raw)
-            instance.ingredients.set(Ingredients.objects.filter(id__in=ingredient_ids))
+            instance.ingredients.set(
+                Ingredients.objects.filter(id__in=ingredient_ids))
         return instance
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['ingredients_ids'] = list(instance.ingredients.values_list('id', flat=True))
+        data['ingredients_ids'] = list(
+            instance.ingredients.values_list('id', flat=True))
 
         request = self.context.get('request')
         if instance.image and request:

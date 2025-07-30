@@ -6,3 +6,4 @@ from .food_items import FoodItem
 from .ingredients import Ingredients
 from .disease import Diseases
 from .new_disease_ingredient_request import IngredientRequest, DiseaseRequest
+from .customer import Customer

@@ -5,3 +5,6 @@ from .user_register import UserRegistrationSerializer
 from .food import FoodItemSerializer
 from .ingredients import IngredientSerializer
 from .new_disease_ingredient_request import IngredientRequestSerializer, DiseaseRequestSerializer, ApprovalActionSerializer
+from .diseases import DiseaseSerializer
+from .customer import CustomerSerializer
+from .excel_upload import ExcelUploadSerializer
