@@ -12,10 +12,13 @@ class RestauratCreateSerializer(serializers.ModelSerializer):
         name = data.get('name')
         location = data.get('location')
 
-        qs = Restaurant.objects.filter(owner=user, name__iexact=name.strip(), location__iexact=location.strip())
+        if not name or not location:
+            raise serializers.ValidationError("Both name and location required")
+
+        restaurants = Restaurant.objects.filter(owner=user, name__iexact=name.strip(), location__iexact=location.strip())
         if self.instance:
-            qs = qs.exclude(id=self.instance.id)
-        if qs.exists():
+            restaurants = restaurants.exclude(id=self.instance.id)
+        if restaurants.exists():
             raise serializers.ValidationError(
                 "A restaurant with this owner, name, and location already exists."
             )

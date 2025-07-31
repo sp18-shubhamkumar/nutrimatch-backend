@@ -53,4 +53,4 @@ class RestaurantsOperationView(APIView):
         except Restaurant.DoesNotExist:
             return Response({'detail': 'Restaurant not found or authorized'}, status=404)
         restaurant.delete()
-        return Response({'message': 'Restaurant deleted Successfuly'})
+        return Response({'message': 'Restaurant deleted Successfuly'}, status=204)
