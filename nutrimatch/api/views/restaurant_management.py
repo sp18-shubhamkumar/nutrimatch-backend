@@ -25,7 +25,7 @@ class RestaurantsOperationView(APIView):
             try:
                 restaurant = Restaurant.objects.get(id=rid, owner=request.user)
             except Restaurant.DoesNotExist:
-                return Response({'detail': 'Restaurant not found or unauthorized.'}, status=404)
+                return Response({'detail': 'Restaurant not found or unauthorized.'}, status=status.HTTP_404_NOT_FOUND)
             serializer = RestauratCreateSerializer(restaurant)
             return Response(serializer.data)
 
@@ -39,18 +39,18 @@ class RestaurantsOperationView(APIView):
         try:
             restaurant = Restaurant.objects.get(id=rid, owner=request.user)
         except Restaurant.DoesNotExist:
-            return Response({'detail': 'Restaurant not found or unauthorized.'}, status=404)
+            return Response({'detail': 'Restaurant not found or unauthorized.'}, status=status.HTTP_404_NOT_FOUND)
         serializer = RestauratCreateSerializer(
             restaurant, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Restaurant updated successfully.', 'data': serializer.data})
-        return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, rid):
         try:
             restaurant = Restaurant.objects.get(id=rid, owner=request.user)
         except Restaurant.DoesNotExist:
-            return Response({'detail': 'Restaurant not found or authorized'}, status=404)
+            return Response({'detail': 'Restaurant not found or authorized'}, status=status.HTTP_404_NOT_FOUND)
         restaurant.delete()
-        return Response({'message': 'Restaurant deleted Successfuly'}, status=204)
+        return Response({'message': 'Restaurant deleted Successfuly'}, status=status.HTTP_204_NO_CONTENT)

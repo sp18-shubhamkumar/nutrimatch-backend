@@ -6,6 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from ..serializers import DiseaseSerializer
 from ..models import Diseases
+from rest_framework import status
 
 
 class DiseaseManagementView(APIView):
@@ -29,45 +30,45 @@ class DiseaseManagementView(APIView):
             disease = self.get_object(pk)
             if disease:
                 serializer = DiseaseSerializer(disease)
-                return Response(serializer.data, status=200)
-            return Response({'error': 'Disease not found'}, status=400)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({'error': 'Disease not found'}, status=status.HTTP_400_BAD_REQUEST)
         
         search = request.query_params.get('search')
         diseases = Diseases.objects.all()
         if search:
             diseases = diseases.filter(name__icontains=search)
         serializer = DiseaseSerializer(diseases, many=True)
-        return Response(serializer.data, status=200)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(request_body=DiseaseSerializer)
     def post(self, request):
         if not request.user.is_superuser:
-            return Response({'error': 'Only admin has access to this.'}, status=403)
+            return Response({'error': 'Only admin has access to this.'}, status=status.HTTP_403_FORBIDDEN)
         serializer = DiseaseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(request_body=DiseaseSerializer)
     def put(self, request, pk):
         if not request.user.is_superuser:
-            return Response({'error': 'Only admin has access to this.'}, status=403)
+            return Response({'error': 'Only admin has access to this.'}, status=status.HTTP_403_FORBIDDEN)
         disease = self.get_object(pk)
         if disease:
             serializer = DiseaseSerializer(
                 disease, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=200)
-            return Response(serializer.errors, status=400)
-        return Response({'error': 'Disease not found'}, status=404)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Disease not found'}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, pk):
         if not request.user.is_superuser:
-            return Response({'error': 'Only admin has access to this.'}, status=403)
+            return Response({'error': 'Only admin has access to this.'}, status=status.HTTP_403_FORBIDDEN)
         disease = self.get_object(pk)
         if disease:
             disease.delete()
-            return Response({'message': 'Disease deleted successfully'}, status=204)
-        return Response({'error': 'Disease not found'}, status=404)
+            return Response({'message': 'Disease deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'error': 'Disease not found'}, status=status.HTTP_404_NOT_FOUND)

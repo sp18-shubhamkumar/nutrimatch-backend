@@ -1,5 +1,8 @@
 from django.urls import path
-from . import RegisterView, LoginView, RestaurantsOperationView, EmployeeManagementView, FoodItemView, IngredientsView, IngredientRequestView, DiseaseRequestView, IngredientRequestApprovalView, DiseaseManagementView, CustomerProfileView, FoodSuggestionsView, IngredientBulkUploadView, DiseaseBulkUploadView
+from . import (RegisterView, LoginView, RestaurantsOperationView, EmployeeManagementView,
+               FoodItemView, IngredientsView, IngredientRequestView, DiseaseRequestView,
+               IngredientRequestApprovalView, DiseaseManagementView, CustomerProfileView,
+               FoodSuggestionsView, IngredientBulkUploadView, DiseaseBulkUploadView)
 
 
 urlpatterns = [

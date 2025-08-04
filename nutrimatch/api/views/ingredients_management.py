@@ -7,6 +7,7 @@ from ..permissions import IsAdminOrReadOnly
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework import status
 
 class IngredientsView(APIView):
     permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
@@ -28,7 +29,7 @@ class IngredientsView(APIView):
         if iid:
             ingredient = self.get_object(iid)
             if not ingredient:
-                return Response({'error':'Ingredient not found'}, status=404)
+                return Response({'error':'Ingredient not found'}, status=status.HTTP_404_NOT_FOUND)
             serializer = IngredientSerializer(ingredient)
             return Response(serializer.data)
         
@@ -45,23 +46,23 @@ class IngredientsView(APIView):
         serializer = IngredientSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':'Ingredient added successfully', 'data':serializer.data}, status=201)
-        return Response(serializer.errors, status=400)
+            return Response({'message':'Ingredient added successfully', 'data':serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @swagger_auto_schema(request_body=IngredientSerializer)
     def put(self, request, iid):
         ingredient = self.get_object(iid)
         if not ingredient:
-            return Response({'error':'Ingredient not found'}, status==404)
+            return Response({'error':'Ingredient not found'}, status==status.HTTP_404_NOT_FOUND)
         serializer = IngredientSerializer(ingredient, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message':'Ingredient updated', 'data':serializer.data})
-        return Response(serializer.errors, status=404)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
     
     def delete(self, request, iid):
         ingredient = self.get_object(iid)
         if not ingredient:
-            return Response({'error':'Ingredient not found'}, status==404)
+            return Response({'error':'Ingredient not found'}, status==status.HTTP_404_NOT_FOUND)
         ingredient.delete()
         return Response({'message': 'Ingredient deleted'})

@@ -140,6 +140,8 @@ def test_put_restaurant_success():
     assert response.data['data']['location'] == 'Delhi'
     assert response.data['data']['name'] == 'Dominos'
 
+# getting and deleting restaurant using its id 
+
 @pytest.mark.django_db
 def test_get_delete_restaurant_by_id():
     client = APIClient()
@@ -170,7 +172,7 @@ def test_get_delete_restaurant_by_id():
 
     assert response.status_code == 404
 
-    
+
 
 
 

@@ -16,7 +16,7 @@ class IngredientRequestApprovalView(APIView):
         try:
             req = IngredientRequest.objects.get(id=pk)
         except IngredientRequest.DoesNotExist:
-            return Response({'error': 'Request not found'}, status=404)
+            return Response({'error': 'Request not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if req.status != 'pending':
             return Response({'detail': f'Request is already {req.status}'}, status=status.HTTP_400_BAD_REQUEST)
@@ -26,7 +26,7 @@ class IngredientRequestApprovalView(APIView):
         action_type = serializer.validated_data['action']
 
         if action_type not in ['approve', 'reject']:
-            return Response({'error': "Action must be 'approve' and 'reject'"}, status=400)
+            return Response({'error': "Action must be 'approve' and 'reject'"}, status=status.HTTP_400_BAD_REQUEST)
 
         if action_type == "approve":
             ingredient_name = req.ingredient_name.strip().lower()
