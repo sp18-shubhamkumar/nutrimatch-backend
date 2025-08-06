@@ -47,7 +47,7 @@ class DiseaseBulkUploadView(APIView):
         file = serializer.validated_data['file']
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as temp:
-            for chunk in file.chunks():
+            for chunk in file.chunks(chunk_size=1*1024):
                 temp.write(chunk)
             temp_path = temp.name
 
