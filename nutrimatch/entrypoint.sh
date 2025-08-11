@@ -1,0 +1,2 @@
+#!/bin/sh
+# Wait for PostgreSQL to be readyecho "Waiting for postgres..."while ! nc -z $DB_HOST $DB_PORT; do  sleep 1doneecho "PostgreSQL started"# Run migrations and start serverpython manage.py migratepython manage.py runserver 0.0.0.0:8000
